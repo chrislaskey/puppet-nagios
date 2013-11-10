@@ -25,17 +25,10 @@ node "nagios-client1" {
 	# Use any of the standard puppet exported resources	
 
 	@@nagios_host { $::fqdn:
-		  ensure => present,
-		  alias => $::hostname,
-		  address => $::ipaddress,
-		  use => "generic-host",
-	}
-	@@nagios_service { "check_ping_${::hostname}":
-		  check_command => "check_ping!100.0,20%!500.0,60%",
-		  use => "generic-service",
-		  host_name => "$::fqdn",
-		  notification_period => "24x7",
-		  service_description => "${::hostname}_check_ping"
+		ensure => present,
+		alias => $::hostname,
+		address => $::ipaddress,
+		use => "generic-host",
 	}
 }
 ```
@@ -45,7 +38,7 @@ nagios::client
 
 ```puppet
 class { "nagios::client":
-	allowed_hosts => [1.1.1.1, 1.1.1.2],
+	allowed_hosts => "127.0.0.1",
 }
 ```
 
@@ -63,8 +56,8 @@ nagios::server
 ```puppet
 class { "nagios::server":
 	http => true,
-	http_username => "nagiosadmin",
-	http_password => "nagiosadmin",
+	http_username => undef,
+	http_password => undef,
 	http_encryption => "md5",
 ){
 ```
