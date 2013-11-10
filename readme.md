@@ -4,6 +4,42 @@ About
 The `nagios` module handles basic installation of Nagios clients and servers
 for Debian (stable) and RedHat (experimental) family distributions.
 
+Example
+-------
+
+```puppet
+# /etc/puppet/manifests/nodes.pp
+
+node "nagios-server" {
+	class { "nagios::server":
+		http_username => "nagiosadmin",
+		http_password => "nagiosadmin",
+	}
+}
+
+node "nagios-client1" {
+	class { "nagios::client":
+		allowed_hosts => ["1.1.1.1", "1.1.1.2"],
+	}
+
+	# Use any of the standard puppet exported resources	
+
+	@@nagios_host { $::fqdn:
+		  ensure => present,
+		  alias => $::hostname,
+		  address => $::ipaddress,
+		  use => "generic-host",
+	}
+	@@nagios_service { "check_ping_${::hostname}":
+		  check_command => "check_ping!100.0,20%!500.0,60%",
+		  use => "generic-service",
+		  host_name => "$::fqdn",
+		  notification_period => "24x7",
+		  service_description => "${::hostname}_check_ping"
+	}
+}
+```
+
 nagios::client
 --------------
 
@@ -13,7 +49,7 @@ class { "nagios::client":
 }
 ```
 
-### Parameters
+#### Parameters
 
 ##### `allowed_hosts`
 
@@ -33,7 +69,7 @@ class { "nagios::server":
 ){
 ```
 
-### Parameters
+#### Parameters
 
 ##### `http`
 
