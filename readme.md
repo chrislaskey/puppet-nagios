@@ -15,9 +15,11 @@ class { "nagios::client":
 
 ### Parameters
 
-`allowed_hosts`
-Default value is `127.0.0.1`.
+##### `allowed_hosts`
+
 Parameter accepts either a single string value or an array of string values.
+
+Default value is `127.0.0.1`.   
 
 nagios::server
 --------------
@@ -33,21 +35,29 @@ class { "nagios::server":
 
 ### Parameters
 
-`http`
-Default value is `true`. Parameter accepts either `true` or `false`.
-The module installs the `nagios` meta packages on both distributions, which includes the web interface. `http` variable is used to determine if an admin account is made to access the web interface. When `false` no account is made and the web interface will still exist but have no available logins.
+##### `http`
 
-`http_username`
-Default value is `undef`. If `http` parameter is set to `true`, a string value for this parameter must be defined.
+The module installs the `nagios` meta package which includes the web interface. `http` variable is used to determine if an admin account is made to access the web interface. When `false` no account is made and the web interface will still exist but have no available logins.
+
+Default value is `true`. Parameter accepts either `true` or `false`.   
+
+##### `http_username`
+
 The string value for the username for the web interface login.
 
-`http_password`
-Default value is `undef`. If `http` parameter is set to `true`, a string value for this parameter must be defined.
+Default value is `undef`. If `http` parameter is set to `true`, a string value for this parameter must be defined.   
+
+##### `http_password`
+
 The string value for the password for the web interface login.
 
-`http_encryption`
-Default value is `md5`. Other parameter options include `sha` and `crypt`.
+Default value is `undef`. If `http` parameter is set to `true`, a string value for this parameter must be defined.   
+
+##### `http_encryption`
+
 This parameter sets the encryption used for the `htpasswd` key generation.
+
+Default value is `md5`. Other parameter options include `sha` and `crypt`.   
 
 Dependences
 -----------
