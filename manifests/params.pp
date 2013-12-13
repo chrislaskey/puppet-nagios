@@ -53,7 +53,7 @@ class nagios::params () {
       $binary_path = "/usr/sbin/nagios3"
       $htpasswd_path = "/etc/nagios3/htpasswd.users"
       $http_config_path = "/etc/nagios3/apache.conf"
-      $conf_dir = "/etc/nagios3/conf.d/"
+      $conf_dir = "/etc/nagios3/conf.d"
       $config_file_mode = "0644"
       $cgi_config_file = "/etc/nagios3/cgi.cfg"
     }
@@ -63,7 +63,7 @@ class nagios::params () {
       $binary_path = "/usr/sbin/nagios"
       $htpasswd_path = "/etc/nagios/.htpasswd"
       $http_config_path = "/etc/httpd/conf.d/nagios.conf"
-      $conf_dir = "/etc/nagios/"
+      $conf_dir = "/etc/nagios"
       $config_file_mode = "0644"
       $cgi_config_file = "/etc/nagios/cgi.cfg"
     }
