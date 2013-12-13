@@ -5,51 +5,7 @@ class nagios::server (
   http_encryption = "md5",
 ){
 
-  # Verify passed parameters
-
-  if $http {
-    if ! $http_username {
-      fail("If http is enabled, a http_username is required.")
-    }
-    if ! $http_password {
-      fail("If http is enabled, a http_password is required.")
-    }
-  }
-
-  case $http_encryption {
-    "md5":   { $http_encryption_flag = "-m" }
-    "sha":   { $http_encryption_flag = "-s" }
-    "crypt": { $http_encryption_flag = "-d" }
-    default: { $http_encryption_flag = "-m" }
-  }
-
-  # Set OS specific variables
-
-  case $::osfamily {
-    "Debian": {
-      $nagios_service_name = "nagios3"
-      $nagios_binary_path = "/usr/sbin/nagios3"
-      $http_htpasswd_path = "/etc/nagios3/htpasswd.users"
-      $http_config_path = "/etc/nagios3/apache.conf"
-      $nagios_conf_dir = "/etc/nagios3/conf.d/"
-      $nagios_config_file_mode = "0644"
-      $nagios_cgi_config_file = "/etc/nagios3/cgi.cfg"
-    }
-    "RedHat": {
-      $nagios_service_name = "nagios"
-      $nagios_binary_path = "/usr/sbin/nagios"
-      $http_htpasswd_path = "/etc/nagios/.htpasswd"
-      $http_config_path = "/etc/httpd/conf.d/nagios.conf"
-      $nagios_conf_dir = "/etc/nagios/"
-      $nagios_config_file_mode = "0600"
-      $nagios_cgi_config_file = "/etc/nagios/cgi.cfg"
-    }
-    default: {
-      fail("Nagios module only supports Debian and Redhat (alpha) linux distributions")
-    }
-  }
-
-  # Nagios Packages
+  include nagios::params
 
   package { "nagios-server":
     name => [
