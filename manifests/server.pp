@@ -107,6 +107,46 @@ class nagios::server (
     }
   }
 
+  # Fix duplicate host bug
+
+  # Modifies the local Puppet files to apply the patch that was merged into
+  # Puppet > 3.3.0. It's a hack, but a smart one. Using puppet to patch puppet.
+  # Thanks to Brian Menges for the idea and the solution.
+  #
+  # http://projects.puppetlabs.com/issues/17871#note-12
+
+  exec { 'projects-puppetlabs-com-issues-17871':
+    command => 'sed -i "s/^        @parameters\[pname\] = \*args/        @parameters[pname], = *args/" base.rb',
+    onlyif  => 'test -f base.rb && grep -q "^        @parameters\[pname\] = \*args" base.rb',
+    cwd     => '/usr/lib/ruby/vendor_ruby/puppet/external/nagios/',
+    path    => '/bin:/sbin:/usr/bin:/usr/sbin',
+    user    => 'root',
+    group   => 'root',
+    require => Package['nagios-server'],
+    notify  => Exec['clean-config-files'],
+  }
+
+  # Fix duplicate nagios resources bug
+
+  # The first time Puppet is run collected Nagios resources are placed into
+  # their respective Nagios config files. On the second Puppet run the same
+  # duplicate entries are placed into the config files. This causes the
+  # Nagios config check to fail, and Nagios service will not start.
+  # 
+  # The bug is known and nearly two years old, but right now the only fix
+  # is to clear all the files and rebuild them on each puppet run. Far from
+  # ideal, but it's better than a nonfunctioning Nagios service.
+  #
+  # http://projects.puppetlabs.com/issues/11921
+
+  exec { 'clean-config-files':
+    command => "find ${nagios::params::conf_dir} -type f -name \"nagios_*cfg\" | xargs rm",
+    path    => '/bin:/sbin:/usr/bin:/usr/sbin',
+    user    => 'root',
+    group   => 'root',
+    require => Package['nagios-server'],
+  }
+
   # Commands
 
   file { "${nagios::params::conf_dir}/nagios_command.cfg":
@@ -114,19 +154,19 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_command <| |> {
     target  => "${nagios::params::conf_dir}/nagios_command.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_command.cfg"],
+    require => File["${nagios::params::conf_dir}/nagios_command.cfg"],
+    notify  => Service['nagios-server'],
   }
 
   Nagios_command <<| |>> {
     target  => "${nagios::params::conf_dir}/nagios_command.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_command.cfg"],
+    require => File["${nagios::params::conf_dir}/nagios_command.cfg"],
+    notify  => Service['nagios-server'],
   }
 
   # Contacts
@@ -136,19 +176,19 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_contact <| |> {
     target  => "${nagios::params::conf_dir}/nagios_contact.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_contact.cfg"],
+    require => File["${nagios::params::conf_dir}/nagios_contact.cfg"],
+    notify  => Service['nagios-server'],
   }
 
   Nagios_contact <<| |>> {
     target  => "${nagios::params::conf_dir}/nagios_contact.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_contact.cfg"],
+    require => File["${nagios::params::conf_dir}/nagios_contact.cfg"],
+    notify  => Service['nagios-server'],
   }
 
 
@@ -159,19 +199,19 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_contactgroup <| |> {
     target  => "${nagios::params::conf_dir}/nagios_contactgroup.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_contactgroup.cfg"],
+    require => File["${nagios::params::conf_dir}/nagios_contactgroup.cfg"],
+    notify  => Service['nagios-server'],
   }
 
   Nagios_contactgroup <<| |>> {
     target  => "${nagios::params::conf_dir}/nagios_contactgroup.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_contactgroup.cfg"],
+    require => File["${nagios::params::conf_dir}/nagios_contactgroup.cfg"],
+    notify  => Service['nagios-server'],
   }
 
   # Hosts
@@ -181,19 +221,19 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_host <| |> {
     target  => "${nagios::params::conf_dir}/nagios_host.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_host.cfg"],
+    require => File["${nagios::params::conf_dir}/nagios_host.cfg"],
+    notify  => Service['nagios-server'],
   }
 
   Nagios_host <<| |>> {
     target  => "${nagios::params::conf_dir}/nagios_host.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_host.cfg"],
+    require => File["${nagios::params::conf_dir}/nagios_host.cfg"],
+    notify  => Service['nagios-server'],
   }
 
   # Host Dependencies
@@ -203,7 +243,7 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_hostdependency <| |> {
@@ -225,7 +265,7 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_hostescalation <| |> {
@@ -247,7 +287,7 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_hostextinfo <| |> {
@@ -269,7 +309,7 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_hostgroup <| |> {
@@ -291,7 +331,7 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_service <| |> {
@@ -313,7 +353,7 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_servicedependency <| |> {
@@ -335,7 +375,7 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_serviceescalation <| |> {
@@ -357,7 +397,7 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_serviceextinfo <| |> {
@@ -379,7 +419,7 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_servicegroup <| |> {
@@ -401,7 +441,7 @@ class nagios::server (
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
-    require => Package['nagios-server'],
+    require => Exec['clean-config-files'],
   }
 
   Nagios_timeperiod <| |> {
