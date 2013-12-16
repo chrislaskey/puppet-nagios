@@ -17,27 +17,6 @@ class nagios::server (
     ensure => 'present',
   }
 
-  package { 'nagios-nrpe-server':
-    name    => $nagios::params::nrpe_server_packages,
-    ensure  => $include_nrpe ? { false => 'absent', default => 'present' },
-    require => Package['nagios-server'],
-    notify  => Service['nagios-server'],
-  }
-
-  package { 'nagios-nsca-server':
-    name    => $nagios::params::nsca_server_packages,
-    ensure  => $include_nsca ? { false => 'absent', default => 'present' },
-    require => Package['nagios-server'],
-    notify  => Service['nagios-server'],
-  }
-
-  package { 'nagios-check-mk-server':
-    name    => $nagios::params::check_mk_server_packages,
-    ensure  => $include_check_mk ? { false => 'absent', default => 'present' },
-    require => Package['nagios-server'],
-    notify  => Service['nagios-server'],
-  }
-
   # Remove example configuration files that might throw errors in production.
   # Keep helpful building blocks like timeperiod, generic-service, etc.
 
@@ -78,12 +57,17 @@ class nagios::server (
     subscribe => File [$nagios::params::cgi_config_file],
   }
 
-  service { 'nagios-nrpe-server':
-    ensure  => $include_nrpe ? { false => 'stopped', default => 'running' },
-    enable  => $include_nrpe ? { false => false, default => true },
-    name    => $nagios::params::nrpe_service_name,
-    pattern => $nagios::params::nrpe_binary_path,
-    require => Package['nagios-nrpe-server'],
+  # Monitoring packages, NRPE, NSCA and Check-MK
+
+  if $include_nrpe {
+    include nagios::plugins
+  }
+
+  package { 'nagios-nsca-server':
+    name    => $nagios::params::nsca_server_packages,
+    ensure  => $include_nsca ? { false => 'absent', default => 'present' },
+    require => Package['nagios-server'],
+    notify  => Service['nagios-server'],
   }
 
   service { 'nagios-nsca-server':
@@ -96,6 +80,13 @@ class nagios::server (
     name    => $nagios::params::nsca_service_name,
     pattern => $nagios::params::nsca_binary_path,
     require => Package['nagios-nsca-server'],
+  }
+
+  package { 'nagios-check-mk-server':
+    name    => $nagios::params::check_mk_server_packages,
+    ensure  => $include_check_mk ? { false => 'absent', default => 'present' },
+    require => Package['nagios-server'],
+    notify  => Service['nagios-server'],
   }
 
   # Manage Apache HTTP server

@@ -2,8 +2,7 @@ class nagios::params () {
 
   case $::osfamily {
     'Debian': {
-      $server_packages = ['nagios3', 'nagios-plugins', 'nagios-snmp-plugins']
-      $client_packages = ['nagios-plugins', 'nagios-snmp-plugins']
+      $server_packages = ['nagios3']
       $service_name = 'nagios3'
       $binary_path = '/usr/sbin/nagios3'
       $conf_dir = '/etc/nagios3/conf.d'
@@ -11,10 +10,12 @@ class nagios::params () {
       $config_file_mode = '0644'
       $config_file_template = 'nagios/nagios.cfg.debian'
       $objects_dir = '/etc/nagios3/objects'
-      $plugins_dir = '/etc/nagios3/plugins'
 
+      $plugin_packages = ['nagios-plugins', 'nagios-snmp-plugins']
+      $plugins_dir = '/usr/lib/nagios/plugins'
+
+      $nrpe_plugin_packages = ['nagios-nrpe-plugin']
       $nrpe_server_packages = ['nagios-nrpe-server']
-      $nrpe_client_packages = ['nagios-nrpe-plugin']
       $nrpe_service_name = 'nagios-nrpe-server'
       $nrpe_binary_path = '/usr/sbin/nagios-nrpe'
 
@@ -32,8 +33,7 @@ class nagios::params () {
       $nagios_path_name = 'nagios3'
     }
     'RedHat': {
-      $server_packages = ['nagios', 'nagios-plugins', 'nagios-plugins-all']
-      $client_packages = ['nagios-plugins']
+      $server_packages = ['nagios']
       $service_name = 'nagios'
       $binary_path = '/usr/sbin/nagios'
       $conf_dir = '/etc/nagios/conf.d'
@@ -41,10 +41,13 @@ class nagios::params () {
       $config_file_mode = '0644'
       $config_file_template = 'nagios/nagios.cfg.redhat'
       $objects_dir = '/etc/nagios/objects'
-      $plugins_dir = '/etc/nagios/plugins'
 
-      $nrpe_server_packages = ['nrpe', 'nagios-plugins-nrpe']
-      $nrpe_client_packages = ['nagios-plugins-nrpe']
+      $plugin_packages = ['nagios-plugins', 'nagios-plugins-snmp']
+      $plugins_lib = $::architecture ? { 'x86_64' => 'lib64', default => 'lib' }
+      $plugins_dir = "/usr/${plugins_lib}/nagios/plugins"
+
+      $nrpe_plugin_packages = ['nagios-plugins-nrpe']
+      $nrpe_server_packages = ['nrpe']
       $nrpe_service_name = 'nrpe'
       $nrpe_binary_path = '/usr/sbin/nrpe'
 
@@ -62,7 +65,7 @@ class nagios::params () {
       $nagios_path_name = 'nagios'
     }
     default: {
-      fail('Nagios module only supports Debian and Redhat (alpha) linux distributions')
+      fail('Nagios module only supports Debian and Redhat linux distributions')
     }
   }
 

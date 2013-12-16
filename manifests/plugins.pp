@@ -1,6 +1,14 @@
-class nagios::plugins () {
+class nagios::plugins {
 
   include nagios::params
+
+  # Plugins from repositories
+
+  package { 'nagios-plugins':
+    name => $nagios::params::plugin_packages,
+  }
+
+  # Third-party plugins
 
   file { 'nagios-additional-plugin-files':
     path    => $nagios::params::plugins_dir,
@@ -12,8 +20,7 @@ class nagios::plugins () {
     recurse => true,
     purge   => false,
     force   => false,
-    require => Package['nagios-server'],
-    notify  => Service['nagios-server'],
+    require => Package['nagios-plugins'],
   }
 
 }
