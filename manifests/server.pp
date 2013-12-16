@@ -40,8 +40,6 @@ class nagios::server (
   # Remove example configuration files that might throw errors in production.
   # Keep helpful building blocks like timeperiod, generic-service, etc.
 
-  # TODO: Check file names in RedHat
-
   file { "${nagios::params::conf_dir}/extinfo_nagios2.cfg":    ensure => 'absent', }
   file { "${nagios::params::conf_dir}/hostgroups_nagios2.cfg": ensure => 'absent', }
   file { "${nagios::params::conf_dir}/localhost_nagios2.cfg":  ensure => 'absent', }
@@ -107,10 +105,12 @@ class nagios::server (
 
   # Commands
 
-  Nagios_command <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_command.cfg",
+  file { "${nagios::params::conf_dir}/nagios_command.cfg":
+    ensure  => 'present',
+    mode    => $nagios::params::config_file_mode,
+    owner   => 'root',
+    group   => 'root',
     require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_command.cfg"],
   }
 
   Nagios_command <| |> {
@@ -119,21 +119,20 @@ class nagios::server (
     notify  => File["${nagios::params::conf_dir}/nagios_command.cfg"],
   }
 
-  file { "${nagios::params::conf_dir}/nagios_command.cfg":
+  Nagios_command <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_command.cfg",
+    require => Package['nagios-server'],
+    notify  => File["${nagios::params::conf_dir}/nagios_command.cfg"],
+  }
+
+  # Contacts
+
+  file { "${nagios::params::conf_dir}/nagios_contact.cfg":
     ensure  => 'present',
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
-    notify  => Service['nagios-server'],
-  }
-
-  # Contacts
-
-  Nagios_contact <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_contact.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_contact.cfg"],
   }
 
   Nagios_contact <| |> {
@@ -142,21 +141,21 @@ class nagios::server (
     notify  => File["${nagios::params::conf_dir}/nagios_contact.cfg"],
   }
 
-  file { "${nagios::params::conf_dir}/nagios_contact.cfg":
+  Nagios_contact <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_contact.cfg",
+    require => Package['nagios-server'],
+    notify  => File["${nagios::params::conf_dir}/nagios_contact.cfg"],
+  }
+
+
+  # Contact Groups
+
+  file { "${nagios::params::conf_dir}/nagios_contactgroup.cfg":
     ensure  => 'present',
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
-    notify  => Service['nagios-server'],
-  }
-
-  # Contact Groups
-
-  Nagios_contactgroup <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_contactgroup.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_contactgroup.cfg"],
   }
 
   Nagios_contactgroup <| |> {
@@ -165,21 +164,20 @@ class nagios::server (
     notify  => File["${nagios::params::conf_dir}/nagios_contactgroup.cfg"],
   }
 
-  file { "${nagios::params::conf_dir}/nagios_contactgroup.cfg":
+  Nagios_contactgroup <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_contactgroup.cfg",
+    require => Package['nagios-server'],
+    notify  => File["${nagios::params::conf_dir}/nagios_contactgroup.cfg"],
+  }
+
+  # Hosts
+
+  file { "${nagios::params::conf_dir}/nagios_host.cfg":
     ensure  => 'present',
     mode    => $nagios::params::config_file_mode,
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
-    notify  => Service['nagios-server'],
-  }
-
-  # Hosts
-
-  Nagios_host <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_host.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_host.cfg"],
   }
 
   Nagios_host <| |> {
@@ -188,28 +186,13 @@ class nagios::server (
     notify  => File["${nagios::params::conf_dir}/nagios_host.cfg"],
   }
 
-  file { "${nagios::params::conf_dir}/nagios_host.cfg":
-    ensure  => 'present',
-    mode    => $nagios::params::config_file_mode,
-    owner   => 'root',
-    group   => 'root',
+  Nagios_host <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_host.cfg",
     require => Package['nagios-server'],
-    notify  => Service['nagios-server'],
+    notify  => File["${nagios::params::conf_dir}/nagios_host.cfg"],
   }
 
   # Host Dependencies
-
-  Nagios_hostdependency <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_hostdependency.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_hostdependency.cfg"],
-  }
-
-  Nagios_hostdependency <| |> {
-    target  => "${nagios::params::conf_dir}/nagios_hostdependency.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_hostdependency.cfg"],
-  }
 
   file { "${nagios::params::conf_dir}/nagios_hostdependency.cfg":
     ensure  => 'present',
@@ -217,22 +200,21 @@ class nagios::server (
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
+  }
+
+  Nagios_hostdependency <| |> {
+    target  => "${nagios::params::conf_dir}/nagios_hostdependency.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_hostdependency.cfg"],
+    notify  => Service['nagios-server'],
+  }
+
+  Nagios_hostdependency <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_hostdependency.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_hostdependency.cfg"],
     notify  => Service['nagios-server'],
   }
 
   # Host Escalations
-
-  Nagios_hostescalation <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_hostescalation.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_hostescalation.cfg"],
-  }
-
-  Nagios_hostescalation <| |> {
-    target  => "${nagios::params::conf_dir}/nagios_hostescalation.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_hostescalation.cfg"],
-  }
 
   file { "${nagios::params::conf_dir}/nagios_hostescalation.cfg":
     ensure  => 'present',
@@ -240,22 +222,21 @@ class nagios::server (
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
+  }
+
+  Nagios_hostescalation <| |> {
+    target  => "${nagios::params::conf_dir}/nagios_hostescalation.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_hostescalation.cfg"],
+    notify  => Service['nagios-server'],
+  }
+
+  Nagios_hostescalation <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_hostescalation.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_hostescalation.cfg"],
     notify  => Service['nagios-server'],
   }
 
   # Host Ext Infos
-
-  Nagios_hostextinfo <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_hostextinfo.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_hostextinfo.cfg"],
-  }
-
-  Nagios_hostextinfo <| |> {
-    target  => "${nagios::params::conf_dir}/nagios_hostextinfo.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_hostextinfo.cfg"],
-  }
 
   file { "${nagios::params::conf_dir}/nagios_hostextinfo.cfg":
     ensure  => 'present',
@@ -263,22 +244,21 @@ class nagios::server (
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
+  }
+
+  Nagios_hostextinfo <| |> {
+    target  => "${nagios::params::conf_dir}/nagios_hostextinfo.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_hostextinfo.cfg"],
+    notify  => Service['nagios-server'],
+  }
+
+  Nagios_hostextinfo <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_hostextinfo.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_hostextinfo.cfg"],
     notify  => Service['nagios-server'],
   }
 
   # Host Groups
-
-  Nagios_hostgroup <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_hostgroup.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_hostgroup.cfg"],
-  }
-
-  Nagios_hostgroup <| |> {
-    target  => "${nagios::params::conf_dir}/nagios_hostgroup.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_hostgroup.cfg"],
-  }
 
   file { "${nagios::params::conf_dir}/nagios_hostgroup.cfg":
     ensure  => 'present',
@@ -286,22 +266,21 @@ class nagios::server (
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
+  }
+
+  Nagios_hostgroup <| |> {
+    target  => "${nagios::params::conf_dir}/nagios_hostgroup.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_hostgroup.cfg"],
+    notify  => Service['nagios-server'],
+  }
+
+  Nagios_hostgroup <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_hostgroup.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_hostgroup.cfg"],
     notify  => Service['nagios-server'],
   }
 
   # Services
-  
-  Nagios_service <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_service.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_service.cfg"],
-  }
-
-  Nagios_service <| |> {
-    target  => "${nagios::params::conf_dir}/nagios_service.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_service.cfg"],
-  }
 
   file { "${nagios::params::conf_dir}/nagios_service.cfg":
     ensure  => 'present',
@@ -309,22 +288,21 @@ class nagios::server (
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
+  }
+
+  Nagios_service <| |> {
+    target  => "${nagios::params::conf_dir}/nagios_service.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_service.cfg"],
+    notify  => Service['nagios-server'],
+  }
+  
+  Nagios_service <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_service.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_service.cfg"],
     notify  => Service['nagios-server'],
   }
 
   # Service Dependencies
-
-  Nagios_servicedependency <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_servicedependency.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_servicedependency.cfg"],
-  }
-
-  Nagios_servicedependency <| |> {
-    target  => "${nagios::params::conf_dir}/nagios_servicedependency.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_servicedependency.cfg"],
-  }
 
   file { "${nagios::params::conf_dir}/nagios_servicedependency.cfg":
     ensure  => 'present',
@@ -332,22 +310,21 @@ class nagios::server (
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
+  }
+
+  Nagios_servicedependency <| |> {
+    target  => "${nagios::params::conf_dir}/nagios_servicedependency.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_servicedependency.cfg"],
+    notify  => Service['nagios-server'],
+  }
+
+  Nagios_servicedependency <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_servicedependency.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_servicedependency.cfg"],
     notify  => Service['nagios-server'],
   }
 
   # Service Escalations
-
-  Nagios_serviceescalation <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_serviceescalation.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_serviceescalation.cfg"],
-  }
-
-  Nagios_serviceescalation <| |> {
-    target  => "${nagios::params::conf_dir}/nagios_serviceescalation.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_serviceescalation.cfg"],
-  }
 
   file { "${nagios::params::conf_dir}/nagios_serviceescalation.cfg":
     ensure  => 'present',
@@ -355,22 +332,21 @@ class nagios::server (
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
+  }
+
+  Nagios_serviceescalation <| |> {
+    target  => "${nagios::params::conf_dir}/nagios_serviceescalation.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_serviceescalation.cfg"],
+    notify  => Service['nagios-server'],
+  }
+
+  Nagios_serviceescalation <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_serviceescalation.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_serviceescalation.cfg"],
     notify  => Service['nagios-server'],
   }
 
   # Service Ext Infos
-
-  Nagios_serviceextinfo <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_serviceextinfo.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_serviceextinfo.cfg"],
-  }
-
-  Nagios_serviceextinfo <| |> {
-    target  => "${nagios::params::conf_dir}/nagios_serviceextinfo.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_serviceextinfo.cfg"],
-  }
 
   file { "${nagios::params::conf_dir}/nagios_serviceextinfo.cfg":
     ensure  => 'present',
@@ -378,22 +354,21 @@ class nagios::server (
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
+  }
+
+  Nagios_serviceextinfo <| |> {
+    target  => "${nagios::params::conf_dir}/nagios_serviceextinfo.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_serviceextinfo.cfg"],
+    notify  => Service['nagios-server'],
+  }
+
+  Nagios_serviceextinfo <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_serviceextinfo.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_serviceextinfo.cfg"],
     notify  => Service['nagios-server'],
   }
 
   # Service Groups
-
-  Nagios_servicegroup <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_servicegroup.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_servicegroup.cfg"],
-  }
-
-  Nagios_servicegroup <| |> {
-    target  => "${nagios::params::conf_dir}/nagios_servicegroup.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_servicegroup.cfg"],
-  }
 
   file { "${nagios::params::conf_dir}/nagios_servicegroup.cfg":
     ensure  => 'present',
@@ -401,22 +376,21 @@ class nagios::server (
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
+  }
+
+  Nagios_servicegroup <| |> {
+    target  => "${nagios::params::conf_dir}/nagios_servicegroup.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_servicegroup.cfg"],
+    notify  => Service['nagios-server'],
+  }
+
+  Nagios_servicegroup <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_servicegroup.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_servicegroup.cfg"],
     notify  => Service['nagios-server'],
   }
 
   # Timeperiods
-
-  Nagios_timeperiod <<| |>> {
-    target  => "${nagios::params::conf_dir}/nagios_timeperiod.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_timeperiod.cfg"],
-  }
-
-  Nagios_timeperiod <| |> {
-    target  => "${nagios::params::conf_dir}/nagios_timeperiod.cfg",
-    require => Package['nagios-server'],
-    notify  => File["${nagios::params::conf_dir}/nagios_timeperiod.cfg"],
-  }
 
   file { "${nagios::params::conf_dir}/nagios_timeperiod.cfg":
     ensure  => 'present',
@@ -424,6 +398,17 @@ class nagios::server (
     owner   => 'root',
     group   => 'root',
     require => Package['nagios-server'],
+  }
+
+  Nagios_timeperiod <| |> {
+    target  => "${nagios::params::conf_dir}/nagios_timeperiod.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_timeperiod.cfg"],
+    notify  => Service['nagios-server'],
+  }
+
+  Nagios_timeperiod <<| |>> {
+    target  => "${nagios::params::conf_dir}/nagios_timeperiod.cfg",
+    require => File["${nagios::params::conf_dir}/nagios_timeperiod.cfg"],
     notify  => Service['nagios-server'],
   }
 }
