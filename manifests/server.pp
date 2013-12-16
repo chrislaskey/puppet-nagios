@@ -10,6 +10,7 @@ class nagios::server (
 ){
 
   include nagios::params
+  include nagios::plugins
 
   package { 'nagios-server':
     name   => $nagios::params::server_packages,
@@ -48,6 +49,9 @@ class nagios::server (
 
   # Nagios config
 
+  $plugins_dir = $nagios::params::plugins_dir
+  $objects_dir = $nagios::params::objects_dir
+  $conf_dir    = $nagios::params::conf_dir
   $check_external_commands = $config_check_external_commands ? {
     true    => '1',
     default => '0',

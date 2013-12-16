@@ -10,7 +10,8 @@ class nagios::params () {
       $config_file = '/etc/nagios3/nagios.cfg'
       $config_file_mode = '0644'
       $config_file_template = 'nagios/nagios.cfg.debian'
-      $objects_dir = '/etc/nagios/objects'
+      $objects_dir = '/etc/nagios3/objects'
+      $plugins_dir = '/etc/nagios3/plugins'
 
       $nrpe_server_packages = ['nagios-nrpe-server']
       $nrpe_client_packages = ['nagios-nrpe-plugin']
@@ -40,6 +41,7 @@ class nagios::params () {
       $config_file_mode = '0644'
       $config_file_template = 'nagios/nagios.cfg.redhat'
       $objects_dir = '/etc/nagios/objects'
+      $plugins_dir = '/etc/nagios/plugins'
 
       $nrpe_server_packages = ['nrpe', 'nagios-plugins-nrpe']
       $nrpe_client_packages = ['nagios-plugins-nrpe']

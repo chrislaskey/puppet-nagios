@@ -20,10 +20,13 @@ cfg_file=/etc/nagios3/commands.cfg
 # nagios-plugins package
 cfg_dir=/etc/nagios-plugins/config
 
+# Parse additional custom plugins
+cfg_dir=<%= plugins_dir %>
+
 # Debian uses by default a configuration directory where nagios3-common,
 # other packages and the local admin can dump or link configuration
 # files into.
-cfg_dir=/etc/nagios3/conf.d
+cfg_dir=<%= conf_dir %>
 
 # OBJECT CONFIGURATION FILE(S)
 # These are the object configuration files in which you define hosts,
