@@ -2,6 +2,7 @@ class nagios::server (
   $include_nrpe = true,
   $include_nsca = true,
   $include_check_mk = true,
+  $config_check_external_commands = false,
   $http = true,
   $http_username = undef,
   $http_password = undef,
@@ -55,11 +56,11 @@ class nagios::server (
   }
 
   file { $nagios::params::config_file:
-    ensure => 'present',
+    ensure  => 'present',
     content => template($nagios::params::config_file_template),
-    owner => 'root',
-    group => 'root',
-    mode => '0644',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
     require => Package['nagios-server'],
     notify  => Service['nagios-server'],
   }
