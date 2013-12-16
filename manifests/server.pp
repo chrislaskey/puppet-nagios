@@ -29,7 +29,7 @@ class nagios::server (
     notify  => Service['nagios-server'],
   }
 
-  package { 'nagios-check_mk-server':
+  package { 'nagios-check-mk-server':
     name    => $nagios::params::check_mk_server_packages,
     ensure  => $include_check_mk ? { false => 'absent', default => 'present' },
     require => Package['nagios-server'],
@@ -45,20 +45,54 @@ class nagios::server (
   file { "${nagios::params::conf_dir}/hostgroups_nagios2.cfg": ensure => 'absent', }
   file { "${nagios::params::conf_dir}/localhost_nagios2.cfg":  ensure => 'absent', }
   file { "${nagios::params::conf_dir}/services_nagios2.cfg":   ensure => 'absent', }
+  file { "${nagios::params::objects_dir}/localhost.cfg":       ensure => 'absent', }
+
+  # Nagios config
+
+  $check_external_commands = $config_check_external_commands ? {
+    true    => '1',
+    default => '0',
+  }
+
+  file { $nagios::params::config_file:
+    ensure => 'present',
+    content => template($nagios::params::config_file_template),
+    owner => 'root',
+    group => 'root',
+    mode => '0644',
+    require => Package['nagios-server'],
+    notify  => Service['nagios-server'],
+  }
 
   # Nagios service
 
   service { 'nagios-server':
-    enable  => true,
-    ensure  => running,
-    name    => $nagios::params::service_name,
-    pattern => $nagios::params::binary_path,
-    require => [
-      Package['nagios-server'],
-    ],
-    subscribe => [
-      File [$nagios::params::cgi_config_file],
-    ],
+    enable    => true,
+    ensure    => running,
+    name      => $nagios::params::service_name,
+    pattern   => $nagios::params::binary_path,
+    require   => Package['nagios-server'],
+    subscribe => File [$nagios::params::cgi_config_file],
+  }
+
+  service { 'nagios-nrpe-server':
+    ensure  => $include_nrpe ? { false => 'stopped', default => 'running' },
+    enable  => $include_nrpe ? { false => false, default => true },
+    name    => $nagios::params::nrpe_service_name,
+    pattern => $nagios::params::nrpe_binary_path,
+    require => Package['nagios-nrpe-server'],
+  }
+
+  service { 'nagios-nsca-server':
+    # NOTE: The init script for the NSCA server on Debian 7 is buggy.
+    # The command `invoke-rc.d nsca start` can fail but still return 0.
+    # Puppet does not seem to know how to handle this, and will not output
+    # anything - neither a NOTICE of success or a ERROR.
+    ensure  => $include_nsca ? { false => 'stopped', default => 'running' },
+    enable  => $include_nsca ? { false => false, default => true },
+    name    => $nagios::params::nsca_service_name,
+    pattern => $nagios::params::nsca_binary_path,
+    require => Package['nagios-nsca-server'],
   }
 
   # Manage Apache HTTP server
