@@ -1,12 +1,12 @@
 class nagios::server (
-  $include_nrpe = true,
-  $include_nsca = true,
-  $include_check_mk = true,
-  $config_check_external_commands = false,
-  $http = true,
-  $http_username = undef,
-  $http_password = undef,
-  $http_encryption = 'md5',
+  $include_nrpe                   = true,
+  $include_nsca                   = false,
+  $include_check_mk               = false,
+  $http                           = true,
+  $http_username                  = 'nagiosadmin',
+  $http_password                  = 'nagiosadmin',
+  $http_encryption                = 'md5',
+  $config_check_external_commands = true,
 ){
 
   include nagios::params
