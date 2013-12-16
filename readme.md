@@ -7,8 +7,8 @@ Module Goals:
 
 - Manage the installation and configuration of Nagios server
 - Manage Nagios remote checks via NRPE
-- Set up the Nagios server web-interface
-- Allow custom Nagios plugins
+- Optionally configure the Nagios server web-interface
+- Easy distribution of third-party Nagios plugins
 
 There is also experimental support for `NSCA` and `Check MK`.
 
@@ -77,7 +77,8 @@ for Nagios Check MK style plugins.
 
 `http`  
 Defaults to true. Accepts boolean values `true|false`. Whether to install the
-Nagios Admin web-interface. See `http_username` and `http_password`.
+Nagios Admin web-interface. If true, configures Apache web server and generates
+login credentials. See `http_username` and `http_password`.
 
 `http_username`  
 Defaults to 'nagiosadmin'. Accepts any not null string value. The value is used
@@ -118,129 +119,39 @@ Exchange or elsewhere. Plugin files should be placed in the
 `/etc/puppet/modules/nagios/files/plugins` directory on the Puppet Master. Make
 sure the executable bit is set.
 
+## Dependences
+
+Requires [puppetlabs/stdlib](https://forge.puppetlabs.com/puppetlabs/stdlib) >=
+2.2.0
+
 ## For developers
 
 #### Bug fix: Debian Paths
 
+Correct config path in Debian. Uses `/etc/nagios3/` instead of `/etc/nagios/`.
+
 #### Bug fix: Duplicate Resource Definitions
+
+The first time Puppet is run collected Nagios resources are placed into their
+respective Nagios config files. On the second Puppet run the same duplicate
+entries are placed into the config files. This causes the Nagios config check
+to fail, and Nagios service will not start.
+   
+The bug is known and nearly two years old, but right now the only fix is to
+clear all the files and rebuild them on each puppet run. Uses extra resources
+but provides a tested and stable work around.
+  
+See: [Issue 11921](http://projects.puppetlabs.com/issues/11921)
 
 #### Bug fix: Duplicate Host Defintions
 
+A separate bug from the one above can cause the same host to be written
+multiple times to the same config file. This bug has been fixed and merged in
+Puppet 3.3.0. The module back ports this bugfix to Puppet > 2.7.23.
 
-Bug fixes
----------
-
-Correct config path in Debian. Uses `/etc/nagios3/` instead of `/etc/nagios/`.
-
-Backport duplicate host bug to work in Puppet < 3.3.0.
-
-Provide a tested and stable work around for a known duplicate resources bug that can prevent Nagios server from starting.
-
-Puppet supports native resource types in Puppet. Exporting
-
-The module includes bug fixes for Nagios resources.
-
-There are two known bugs in Puppet
-
-The `nagios` module handles basic installation of Nagios clients and servers
-for Debian (stable) and RedHat (experimental) family distributions.
-
-Example
--------
-
-```puppet
-# /etc/puppet/manifests/nodes.pp
-
-node "nagios-server" {
-	class { "nagios::server":
-		http_username => "nagiosadmin",
-		http_password => "nagiosadmin",
-	}
-}
-
-node "nagios-client1" {
-	class { "nagios::client":
-		allowed_hosts => ["1.1.1.1", "1.1.1.2"],
-	}
-
-	# Use any of the standard puppet exported resources
-
-	@@nagios_host { $::fqdn:
-		ensure => present,
-		alias => $::hostname,
-		address => $::ipaddress,
-		use => "generic-host",
-	}
-}
-```
-
-nagios::client
---------------
-
-```puppet
-class { "nagios::client":
-	allowed_hosts => "127.0.0.1",
-}
-```
-
-#### Parameters
-
-##### `allowed_hosts`
-
-Parameter accepts either a single string value or an array of string values.
-
-Default value is `127.0.0.1`.
-
-nagios::server
---------------
-
-```puppet
-class { "nagios::server":
-	http => true,
-	http_username => undef,
-	http_password => undef,
-	http_encryption => "md5",
-){
-```
-
-#### Parameters
-
-##### `http`
-
-The module installs the `nagios` meta package which includes the web interface. `http` variable is used to determine if an admin account is made to access the web interface. When `false` no account is made and the web interface will still exist but have no available logins.
-
-Default value is `true`. Parameter accepts either `true` or `false`.
-
-##### `http_username`
-
-The string value for the username for the web interface login.
-
-Default value is `undef`. If `http` parameter is set to `true`, a string value for this parameter must be defined.
-
-##### `http_password`
-
-The string value for the password for the web interface login.
-
-Default value is `undef`. If `http` parameter is set to `true`, a string value for this parameter must be defined.
-
-##### `http_encryption`
-
-This parameter sets the encryption used for the `htpasswd` key generation.
-
-Default value is `md5`. Other parameter options include `sha` and `crypt`.
-
-Dependences
------------
-
-Requires [puppetlabs/stdlib](https://forge.puppetlabs.com/puppetlabs/stdlib) >=
-2.2.1
-
-Todo
-----
-
-- Add support for collecting all Nagios related [Puppet resource
-types](http://docs.puppetlabs.com/references/latest/type.html#nagios_service-attribute-target).
-Currently only supports Nagios_service and Nagios_host.
+Thanks to Brian Menges for the idea and the solution.
+ 
+See: [Issue 17871](http://projects.puppetlabs.com/issues/17871#note-12)
 
 License
 ================================================================================
