@@ -3,6 +3,7 @@ class nagios::client (
   $include_nrpe     = true,
   $include_nsca     = false,
   $include_check_mk = false,
+  $nrpe_allow_args  = false,
 ){
 
   include nagios::params
@@ -17,6 +18,9 @@ class nagios::client (
   } else {
     fail('The "allowed_hosts" parameter must either be a string or an array')
   }
+
+  $dont_blame_nrpe = $nrpe_allow_args ? { false => '0', default => '1' } 
+  $nrpe_config_dir = $nagios::params::nrpe_config_dir
 
   # NRPE
 
@@ -35,13 +39,13 @@ class nagios::client (
 
   file { 'nagios-nrpe-config':
     ensure  => $include_nrpe ? { false => 'absent', default => 'present' },
-    # TODO Paramaterize this?
-    path    => '/etc/nagios/nrpe.cfg',
+    path    => $nagios::params::nrpe_config_file,
     content => template('nagios/nrpe.cfg'),
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
     require => Package['nagios-nrpe-server'],
+    notify  => Service['nagios-nrpe-server'],
   }
 
   service { 'nagios-nrpe-server':

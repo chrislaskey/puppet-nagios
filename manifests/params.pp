@@ -18,6 +18,8 @@ class nagios::params () {
       $nrpe_server_packages = ['nagios-nrpe-server']
       $nrpe_service_name = 'nagios-nrpe-server'
       $nrpe_binary_path = '/usr/sbin/nagios-nrpe'
+      $nrpe_config_file = '/etc/nagios/nrpe.cfg'
+      $nrpe_config_dir = '/etc/nagios/nrpe.d'
 
       $nsca_server_packages = ['nsca']
       $nsca_client_packages = ['nsca-client']
@@ -50,6 +52,8 @@ class nagios::params () {
       $nrpe_server_packages = ['nrpe']
       $nrpe_service_name = 'nrpe'
       $nrpe_binary_path = '/usr/sbin/nrpe'
+      $nrpe_config_file = '/etc/nagios/nrpe.cfg'
+      $nrpe_config_dir = '/etc/nrpe.d'
 
       $nsca_server_packages = ['nsca']
       $nsca_client_packages = ['nsca-client']
