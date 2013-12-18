@@ -44,7 +44,34 @@ using `@virtual` resources or inside the client node using `@@exported`
 resources. If using exported resources make sure to have a running `PuppetDB`
 instance. All of the built in Puppet `nagios_*` resources are supported.
 
-## Nagios::server
+## Example with NRPE
+
+```puppet
+# An example /etc/puppet/manifests/nodes.pp file
+
+node "nagios-server" {
+  include nagios::server
+
+  # Define a resource either inside the Nagios server node...
+
+  @nagios_host { 'nagios-client-14':
+    address => '10.0.0.14',
+    use     => 'generic-host',
+  }
+}
+
+node "nagios-client-01" {
+
+  # ... or define a resource inside the client node.
+
+  @@nagios_host { 'nagios-client-01':
+    address => '10.0.0.1',
+    use     => 'generic-host',
+  }
+}
+```
+
+## nagios::server
 
 ```puppet
 class { 'nagios::server':
@@ -96,22 +123,63 @@ Defaults to 'md5'. Accepts string values `md5|sha|crypt`. The Nagios admin
 web-interface login uses `.htpasswd` files. This sets which encryption scheme
 is used to generate the file.
 
-`config_check_external_commands`  
-defaults to true. Accepts boolean values `true|false`. Determines whether or
+`enable_external_commands`  
+Defaults to false. Accepts boolean values `true|false`. Determines whether or
 not external commands from the web-interface, like rescheduling a host check,
 are accepted.
 
-## Nagios::client
-
-#### Remote checks with NRPE client
+## nagios::client
 
 ```puppet
-node "nagios-client-52" {
-  # TODO
-  # include nagios::client
-  # ...
+class { 'nagios::client':
+  allowed_hosts    => '127.0.0.1', # Required, defaults to no value
+  include_nrpe     => true,
+  include_nsca     => false,
+  include_check_mk => false,
+  nrpe_allow_args  => false,
 }
 ```
+
+The `nagios::client` parameters are:
+
+`allowed_hosts`  
+Required. Accepts either a string value or an array of strings. It is
+recommened to include `127.0.0.1` along with the Nagios server IP.
+
+`include_nrpe`  
+Defaults to true. Accepts boolean values `true|false`. Installs Nagios NRPE
+client and ensures service is running. 
+
+`include_nsca`  
+Defaults to false. Accepts boolean values `true|false`. Experimental support
+for passive checks with NSCA. Installs NSCA client.
+
+`include_check_mk`  
+Defaults to false. Accepts boolean values `true|false`.  Experimental support
+for Nagios checks with Check MK.
+
+`nrpe_allow_args`  
+Defaults to false. Accepts boolean values `true|false`. Determines whether or
+not remote `check_nrpe` calls can send custom arguments like warning levels,
+etc.
+
+#### Configuring host for Nagios NRPE client
+
+NRPE requires `port 5666` to be open on the client machine. Otherwise
+`check_nrpe` commands will return the error "connection refused or timed out".
+
+Most Debian distributions do not include DENY firewall rules out of the box,
+so configuration may not be necessary.
+
+On the other hand RedHat distributions do include firewall rules out of the
+box. Opening the NRPE port can be accomplished by adding a new `iptables` rule.
+For example in `/etc/sysconfig/iptables` under `:OUTPUT ACCEPT`:
+
+    -A INPUT -m state --state NEW -m tcp -p tcp --dport 5666 -j ACCEPT
+
+Would open the default NRPE port. For Puppet based firewall management see the
+excellent
+[puppetlabs/firewall](https://forge.puppetlabs.com/puppetlabs/firewall) module.
 
 ## Custom plugins
 
