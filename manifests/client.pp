@@ -1,5 +1,5 @@
 class nagios::client (
-  $allowed_hosts    = '127.0.0.1', # Accepts either a string or array of values
+  $allowed_hosts,            # Accepts either a string or array of values
   $include_nrpe     = true,
   $include_nsca     = false,
   $include_check_mk = false,
