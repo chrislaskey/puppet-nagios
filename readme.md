@@ -48,20 +48,21 @@ instance. All of the built in Puppet `nagios_*` resources are supported.
 
 ```puppet
 class { 'nagios::server':
-  include_nrpe                   => true,
-  include_nsca                   => false,          # Experimental
-  include_check_mk               => false,          # Experimental
-  http                           => true,
-  http_username                  => 'nagiosadmin',
-  http_password                  => 'nagiosadmin',
-  http_encryption                => 'md5',
-  config_check_external_commands => true,
+  include_nrpe             => true,
+  include_nsca             => false,          # Experimental
+  include_check_mk         => false,          # Experimental
+  http                     => true,
+  http_username            => 'nagiosadmin',
+  http_password            => 'nagiosadmin',
+  http_encryption          => 'md5',
+  enable_external_commands => false,
 }
 ```
 
-By default `nagios::server` will install Nagios server and Nagios plugin meta packages and ensure the service is running.
+By default `nagios::server` will install Nagios server and Nagios plugin meta
+packages and ensure the service is running.
 
-The class parameters are:
+The `nagios::server` class parameters are:
 
 `include_nrpe`  
 Defaults to true. Accepts boolean values `true|false`. Installs Nagios NRPE
@@ -69,11 +70,11 @@ server and ensures service is running.
 
 `include_nsca`  
 Defaults to false. Accepts boolean values `true|false`. Experimental support
-for Nagios NSCA style plugins.
+for passive checks with NSCA. Installs NSCA server.
 
 `include_check_mk`  
 Defaults to false. Accepts boolean values `true|false`. Experimental support
-for Nagios Check MK style plugins.
+for Nagios checks with Check MK.
 
 `http`  
 Defaults to true. Accepts boolean values `true|false`. Whether to install the

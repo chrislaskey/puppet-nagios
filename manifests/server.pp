@@ -1,12 +1,12 @@
 class nagios::server (
-  $include_nrpe                   = true,
-  $include_nsca                   = false,
-  $include_check_mk               = false,
-  $http                           = true,
-  $http_username                  = 'nagiosadmin',
-  $http_password                  = 'nagiosadmin',
-  $http_encryption                = 'md5',
-  $config_check_external_commands = true,
+  $include_nrpe             = true,
+  $include_nsca             = false,
+  $include_check_mk         = false,
+  $http                     = true,
+  $http_username            = 'nagiosadmin',
+  $http_password            = 'nagiosadmin',
+  $http_encryption          = 'md5',
+  $enable_external_commands = true,
 ){
 
   include nagios::params
@@ -31,7 +31,7 @@ class nagios::server (
   $plugins_dir = $nagios::params::plugins_dir
   $objects_dir = $nagios::params::objects_dir
   $conf_dir    = $nagios::params::conf_dir
-  $check_external_commands = $config_check_external_commands ? {
+  $external_commands = $enable_external_commands ? {
     true    => '1',
     default => '0',
   }
