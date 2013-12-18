@@ -6,7 +6,7 @@ class nagios::server (
   $http_username            = 'nagiosadmin',
   $http_password            = 'nagiosadmin',
   $http_encryption          = 'md5',
-  $enable_external_commands = true,
+  $enable_external_commands = false,
 ){
 
   include nagios::params
