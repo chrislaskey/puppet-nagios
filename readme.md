@@ -1,16 +1,16 @@
 About
 ================================================================================
 
-A puppet module for managing Nagios. Tested on Debian 7.3 and CentOS 6.5.
-
-Module Goals:
+A puppet module for managing Nagios. The module goals include:
 
 - Manage the installation and configuration of Nagios server
-- Manage Nagios remote checks via NRPE
-- Optionally configure the Nagios server web-interface
+- Manage Nagios remote client checks with NRPE
+- Configure the Nagios server web-interface if requested
 - Easy distribution of third-party Nagios plugins
 
 There is also experimental support for `NSCA` and `Check MK`.
+
+Tested on Debian 7.3 and CentOS 6.5.
 
 ## Example
 
@@ -44,32 +44,7 @@ using `@virtual` resources or inside the client node using `@@exported`
 resources. If using exported resources make sure to have a running `PuppetDB`
 instance. All of the built in Puppet `nagios_*` resources are supported.
 
-## Example with NRPE
-
-```puppet
-# An example /etc/puppet/manifests/nodes.pp file
-
-node "nagios-server" {
-  include nagios::server
-
-  # Define a resource either inside the Nagios server node...
-
-  @nagios_host { 'nagios-client-14':
-    address => '10.0.0.14',
-    use     => 'generic-host',
-  }
-}
-
-node "nagios-client-01" {
-
-  # ... or define a resource inside the client node.
-
-  @@nagios_host { 'nagios-client-01':
-    address => '10.0.0.1',
-    use     => 'generic-host',
-  }
-}
-```
+See below for a more advanced example.
 
 ## nagios::server
 
@@ -140,6 +115,14 @@ class { 'nagios::client':
 }
 ```
 
+The Nagios server can monitor remote clients without anything installed on the
+client. This class is optional. It enables more detailed checks on the client
+through active checks with `NRPE`, passive checks with `NSCA` or data rich
+checks with `Check MK`.
+
+Support for `NRPE` is complete. Support for `NSCA` and `Check MK` is
+experimental.
+
 The `nagios::client` parameters are:
 
 `allowed_hosts`  
@@ -181,12 +164,76 @@ Would open the default NRPE port. For Puppet based firewall management see the
 excellent
 [puppetlabs/firewall](https://forge.puppetlabs.com/puppetlabs/firewall) module.
 
+## nagios::nrpe::command
+
+```puppet
+nagios::nrpe::command { 'command_name':
+  command => '', # Required, defaults to no value
+}
+```
+
+NRPE requires commands to be defined on the client before they can be called by
+the Nagios server. This command creates NRPE command definitions and stores
+them in the `nrpe.d` directory.
+
+The `nagios::nrpe::command` parameters are:
+
+`command_name`  
+Defaults to `$title`. Accepts a string value. The name of the remote
+check.
+
+`command`  
+Defaults to true. Accepts boolean values `true|false`. The plugin name and any
+arguments it may take. Do not include plugin path, this is automatically
+prepended to the command.
+
+#### nagios::nrpe::command example
+
+The following puppet node definition creates two new `nrpe.d` files:
+
+```puppet
+node "client-node" {
+  nagios::nrpe::command { 'check_load':
+    command => 'check_load -w 30,20,10 -c 50,40,30',
+  }
+
+  nagios::nrpe::command { 'check_all_disks':
+    command => 'check_disk -w $ARG1$ -c $ARG2$ -e',
+  }
+}
+```
+
+The first file created is `check_load.cfg` and contains:
+
+    command[check_load]=/usr/lib/nagios/plugins/check_load -w 30,20,10 -c 50,40,30
+
+Notice the argument values are hardwired. The second file created is
+`check_all_disks.cfg`:
+
+    command[check_all_disks]=/usr/lib/nagios/plugins/check_disk -w $ARG1$ -c $ARG2$ -e
+
+The second remote command defines dynamic arguments. The Nagios server can now
+send dynamic values for the warning `-w` and critical `-c` threshold arguments.
+
+    # On Nagios server
+    $  ./check_nrpe -H client-node -c check_all_disks -a 80% 90%
+
+Note passing dynamic arguments requires enabling external commands. This can be
+done by setting `enable_external_commands => true` in the `nagios::client`
+definition.
+
 ## Custom plugins
 
 The module supports third-party monitoring plugins downloaded from Nagios
 Exchange or elsewhere. Plugin files should be placed in the
 `/etc/puppet/modules/nagios/files/plugins` directory on the Puppet Master. Make
 sure the executable bit is set.
+
+## A complete monitoring example
+
+```
+# TODO
+```
 
 ## Dependences
 
