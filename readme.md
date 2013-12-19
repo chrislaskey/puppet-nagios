@@ -243,6 +243,13 @@ Third-party plugins should be placed in
 automatically distributed to the Nagios plugins directory of any node with
 a `nagios::server` or `nagios::client`.
 
+## Custom configs
+
+Custom configuration files are also supported. These should be placed in
+`/etc/puppet/modules/nagios/files/conf`. All files ending in `.cfg` will
+automatically be distributed to all Nagios servers. File names are preserved
+and placed in the Nagios `conf.d` directory.
+
 ## A complete monitoring example
 
 ```

@@ -1,9 +1,9 @@
 name 'nagios'
-version '1.2.1'
+version '1.2.2'
 author 'Chris Laskey'
-summary 'Handles basic installation of Nagios clients and servers'
-description 'Handles basic installation of Nagios clients and servers on Debian and RedHat (experimental)'
+summary 'Nagios server and NRPE client management for Debian and RHEL.'
+description 'Nagios server and NRPE client management for Debian and RHEL.'
 license 'MIT License (http://opensource.org/licenses/MIT)'
-project_page 'http://github.com/chrislaskey'
+project_page 'http://github.com/chrislaskey/puppet-nagios'
 
 dependency 'puppetlabs/stdlib', '>= 2.2.0'
