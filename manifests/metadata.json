@@ -1,5 +1,5 @@
 name 'nagios'
-version '1.2.2'
+version '1.2.4'
 author 'Chris Laskey'
 summary 'Nagios server and NRPE client management for Debian and RHEL.'
 description 'Nagios server and NRPE client management for Debian and RHEL.'

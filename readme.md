@@ -263,6 +263,8 @@ Requires [puppetlabs/stdlib](https://forge.puppetlabs.com/puppetlabs/stdlib) >=
 
 ## For developers
 
+This module fixes a number of known bugs related to Nagios.
+
 #### Bug fix: Debian Paths
 
 Correct config path in Debian. Uses `/etc/nagios3/` instead of `/etc/nagios/`.
@@ -289,6 +291,13 @@ Puppet 3.3.0. The module back ports this bugfix to Puppet > 2.7.23.
 Thanks to Brian Menges for the idea and the solution.
  
 See: [Issue 17871](http://projects.puppetlabs.com/issues/17871#note-12)
+
+#### Bug fix: Debian external commands
+
+When external commands are enabled, commands from the Nagios server web
+interface are sent from Apache to a named pipe. There is a known bug on Debian
+systems that requires changing the permissions of the named pipe to prevent
+`Could not stat() command file` errors.
 
 License
 ================================================================================
