@@ -157,6 +157,7 @@ class nagios::server (
 
   exec { 'clean-config-files':
     command => "find ${nagios::params::conf_dir} -type f -name \"nagios_*cfg\" | xargs rm",
+    onlyif  => "ls ${nagios::params::conf_dir} | grep nagios_",
     path    => '/bin:/sbin:/usr/bin:/usr/sbin',
     user    => 'root',
     group   => 'root',
