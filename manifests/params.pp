@@ -5,6 +5,7 @@ class nagios::params () {
       $server_packages = ['nagios3']
       $service_name = 'nagios3'
       $binary_path = '/usr/sbin/nagios3'
+      $etc_dir = '/etc/nagios3'
       $conf_dir = '/etc/nagios3/conf.d'
       $config_file = '/etc/nagios3/nagios.cfg'
       $config_file_mode = '0644'
@@ -38,6 +39,7 @@ class nagios::params () {
       $server_packages = ['nagios']
       $service_name = 'nagios'
       $binary_path = '/usr/sbin/nagios'
+      $etc_dir = '/etc/nagios'
       $conf_dir = '/etc/nagios/conf.d'
       $config_file = '/etc/nagios/nagios.cfg'
       $config_file_mode = '0644'

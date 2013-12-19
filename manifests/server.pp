@@ -7,6 +7,8 @@ class nagios::server (
   $http_password            = 'nagiosadmin',
   $http_encryption          = 'md5',
   $enable_external_commands = false,
+  $remove_base_configs      = false,
+  $remove_example_configs   = true,
 ){
 
   include nagios::params
@@ -17,14 +19,37 @@ class nagios::server (
     ensure => 'present',
   }
 
-  # Remove example configuration files that might throw errors in production.
-  # Keep helpful building blocks like timeperiod, generic-service, etc.
+  # Config files included in Nagios packages
 
-  file { "${nagios::params::conf_dir}/extinfo_nagios2.cfg":    ensure => 'absent', }
-  file { "${nagios::params::conf_dir}/hostgroups_nagios2.cfg": ensure => 'absent', }
-  file { "${nagios::params::conf_dir}/localhost_nagios2.cfg":  ensure => 'absent', }
-  file { "${nagios::params::conf_dir}/services_nagios2.cfg":   ensure => 'absent', }
-  file { "${nagios::params::objects_dir}/localhost.cfg":       ensure => 'absent', }
+  if $remove_base_configs {
+    # The Nagios packages on each system include base files. These are meant
+    # to be generic building blocks. It is recommended to keep these files and
+    # build on top of them in Puppet.
+    file { "${nagios::params::etc_dir}/commands.cfg":                     ensure => 'absent', }
+    file { "${nagios::params::conf_dir}/contacts_nagios2.cfg":            ensure => 'absent', }
+    file { "${nagios::params::conf_dir}/generic-host_nagios2.cfg":        ensure => 'absent', }
+    file { "${nagios::params::conf_dir}/generic-service_nagios2.cfg":     ensure => 'absent', }
+    file { "${nagios::params::conf_dir}/timeperiods_nagios2.cfg":         ensure => 'absent', }
+    file { "${nagios::params::conf_dir}/check_mk/check_mk_templates.cfg": ensure => 'absent', }
+    file { "${nagios::params::objects_dir}/commands.cfg":                 ensure => 'absent', }
+    file { "${nagios::params::objects_dir}/contacts.cfg":                 ensure => 'absent', }
+    file { "${nagios::params::objects_dir}/printer.cfg":                  ensure => 'absent', }
+    file { "${nagios::params::objects_dir}/switch.cfg":                   ensure => 'absent', }
+    file { "${nagios::params::objects_dir}/templates.cfg":                ensure => 'absent', }
+    file { "${nagios::params::objects_dir}/timeperiods.cfg":              ensure => 'absent', }
+    file { "${nagios::params::objects_dir}/windows.cfg":                  ensure => 'absent', }
+  }
+
+  if $remove_example_configs {
+    # The Nagios packages on each system include example files. These are meant
+    # to be overwritten by the user. It is recommended to purge these files and
+    # manage nagios resources through puppet.
+    file { "${nagios::params::conf_dir}/extinfo_nagios2.cfg":    ensure => 'absent', }
+    file { "${nagios::params::conf_dir}/hostgroups_nagios2.cfg": ensure => 'absent', }
+    file { "${nagios::params::conf_dir}/localhost_nagios2.cfg":  ensure => 'absent', }
+    file { "${nagios::params::conf_dir}/services_nagios2.cfg":   ensure => 'absent', }
+    file { "${nagios::params::objects_dir}/localhost.cfg":       ensure => 'absent', }
+  }
 
   # Nagios config
 

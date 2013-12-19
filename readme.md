@@ -58,6 +58,8 @@ class { 'nagios::server':
   http_password            => 'nagiosadmin',
   http_encryption          => 'md5',
   enable_external_commands => false,
+  remove_base_configs      => false,
+  remove_example_configs   => true,
 }
 ```
 
@@ -102,6 +104,18 @@ is used to generate the file.
 Defaults to false. Accepts boolean values `true|false`. Determines whether or
 not external commands from the web-interface, like rescheduling a host check,
 are accepted.
+
+`remove_base_configs`  
+Defaults to false. Accepts boolean values `true|false`. Determines whether or
+not to use the base config files that are installed by default with the Nagios
+server packages. These files contain basic building blocks like a 24x7 timeperiod,
+or generic-server settings. These files are distribution specific.
+
+`remove_example_configs`  
+Defaults to true. Accepts boolean values `true|false`. Determines whether or
+not to use the example config files that are installed by default with the
+Nagios server packages. These files showcase functionality but are meant to be
+overwritten by the user.
 
 ## nagios::client
 
@@ -224,10 +238,10 @@ definition.
 
 ## Custom plugins
 
-The module supports third-party monitoring plugins downloaded from Nagios
-Exchange or elsewhere. Plugin files should be placed in the
-`/etc/puppet/modules/nagios/files/plugins` directory on the Puppet Master. Make
-sure the executable bit is set.
+Third-party plugins should be placed in
+`/etc/puppet/modules/nagios/files/plugins/`. Anything in that directory is
+automatically distributed to the Nagios plugins directory of any node with
+a `nagios::server` or `nagios::client`.
 
 ## A complete monitoring example
 

@@ -31,11 +31,13 @@ log_file=/var/log/nagios/nagios.log
 # the these files in conf.d/* which is auto-included, and should be left out
 # of nagios.cfg.
 
+<%- unless remove_base_configs -%>
 # You can specify individual object config files as shown below:
 cfg_file=/etc/nagios/objects/commands.cfg
 cfg_file=/etc/nagios/objects/contacts.cfg
 cfg_file=/etc/nagios/objects/templates.cfg
 cfg_file=/etc/nagios/objects/timeperiods.cfg
+<%- end -%>
 
 # Definitions for monitoring the local (Linux) host
 #cfg_file=/etc/nagios/objects/localhost.cfg
@@ -59,7 +61,6 @@ cfg_file=/etc/nagios/objects/timeperiods.cfg
 #cfg_dir=/etc/nagios/switches
 #cfg_dir=/etc/nagios/routers
 
-cfg_dir=<%= plugins_dir %>
 cfg_dir=<%= conf_dir %>
 
 
