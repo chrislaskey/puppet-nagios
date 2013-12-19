@@ -123,6 +123,21 @@ class nagios::server (
     }
   }
 
+  # Import any config files 
+
+  file { 'nagios-conf-files':
+    path    => $nagios::params::conf_dir,
+    source  => 'puppet:///nagios/conf',
+    ensure  => 'directory',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0755',
+    recurse => true,
+    purge   => false,
+    force   => false,
+    require => Package['nagios-plugins'],
+  }
+
   # Fix duplicate host bug
 
   # Modifies the local Puppet files to apply the patch that was merged into

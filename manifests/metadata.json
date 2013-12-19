@@ -1,5 +1,5 @@
 name 'nagios'
-version '1.1.1'
+version '1.2.0'
 author 'Chris Laskey'
 summary 'Handles basic installation of Nagios clients and servers'
 description 'Handles basic installation of Nagios clients and servers on Debian and RedHat (experimental)'
