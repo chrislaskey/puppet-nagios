@@ -32,6 +32,7 @@ class nagios::params () {
 
       $htpasswd_path = '/etc/nagios3/htpasswd.users'
       $http_config_path = '/etc/nagios3/apache.conf'
+      $http_user = 'www-data'
       $cgi_config_file = '/etc/nagios3/cgi.cfg'
       $nagios_path_name = 'nagios3'
     }
@@ -67,6 +68,7 @@ class nagios::params () {
 
       $htpasswd_path = '/etc/nagios/passwd'
       $http_config_path = '/etc/httpd/conf.d/nagios.conf'
+      $http_user = 'www-data'
       $cgi_config_file = '/etc/nagios/cgi.cfg'
       $nagios_path_name = 'nagios'
     }

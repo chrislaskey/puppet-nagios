@@ -118,8 +118,10 @@ class nagios::server (
 
   if $http {
     class { 'nagios::server::http':
-        http_username => $http_username,
-        http_password => $http_password,
+        http_username          => $http_username,
+        http_password          => $http_password,
+        http_encryption        => $http_encryption,
+        http_external_commands => $enable_external_commands,
     }
   }
 

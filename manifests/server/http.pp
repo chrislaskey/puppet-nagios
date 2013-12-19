@@ -1,6 +1,8 @@
 class nagios::server::http (
   http_username,
   http_password,
+  http_encryption,
+  http_external_commands,
 ){
 
   include nagios::params
@@ -46,5 +48,30 @@ class nagios::server::http (
     command => "htpasswd -b -c ${http_encryption_flag} ${nagios::params::htpasswd_path} \"${http_username}\" \"${http_password}\"",
     require => Exec['remove-nagios-server-htpasswd-file'],
   }
-}
 
+  # Fix permissions for external commands file
+
+  if $http_external_commands {
+    exec { 'add-nagios-group-to-apache-user':
+      command => "usermod -aG nagios ${nagios::params::http_user}",
+      unless  => "groups ${nagios::params::http_user} | grep nagios",
+      path    => '/bin:/sbin:/usr/bin:/usr/sbin',
+      user    => 'root',
+      group   => 'root',
+      require => Package['nagios-server'],
+    }
+
+    if $::osfamily == 'Debian' {
+      # Fix for a long existing bug in Debian:
+      # http://sharadchhetri.com/2013/06/05/error-could-not-stat-command-file-varlibnagios3rwnagios-cmd/
+      exec { 'fix-bug-in-apache-pipe':
+        command     => '/etc/init.d/nagios3 stop && dpkg-statoverride --update --add nagios www-data 2710 /var/lib/nagios3/rw && dpkg-statoverride --update --add nagios nagios 751 /var/lib/nagios3 && /etc/init.d/nagios3 start',
+        unless      => 'dpkg-statoverride --list | grep -e "/var/lib/nagios3/rw" -e "/var/lib/nagios3"',
+        path        => '/bin:/sbin:/usr/bin:/usr/sbin',
+        user        => 'root',
+        group       => 'root',
+        require     => Package['nagios-server'],
+      }
+    }
+  }
+}
