@@ -1,8 +1,8 @@
 class nagios::server::http (
-  http_username,
-  http_password,
-  http_encryption,
-  http_external_commands,
+  $http_username,
+  $http_password,
+  $http_encryption,
+  $http_external_commands,
 ){
 
   include nagios::params
