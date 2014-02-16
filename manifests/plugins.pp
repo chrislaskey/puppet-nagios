@@ -8,6 +8,10 @@ class nagios::plugins {
     name => $nagios::params::plugin_packages,
   }
 
+  package { 'nagios-plugins-snmp':
+    name => $nagios::params::plugin_packages_snmp,
+  }
+
   # Third-party plugins
 
   file { 'nagios-additional-plugin-files':
