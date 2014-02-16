@@ -129,7 +129,7 @@ class nagios::server (
 
   file { 'nagios-conf-files':
     path    => $nagios::params::conf_dir,
-    source  => 'puppet:///nagios/conf',
+    source  => 'puppet:///modules/nagios/conf',
     ensure  => 'directory',
     owner   => 'root',
     group   => 'root',

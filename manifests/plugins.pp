@@ -16,7 +16,7 @@ class nagios::plugins {
 
   file { 'nagios-additional-plugin-files':
     path    => $nagios::params::plugins_dir,
-    source  => 'puppet:///nagios/plugins',
+    source  => 'puppet:///modules/nagios/plugins',
     ensure  => 'directory',
     owner   => 'root',
     group   => 'root',
