@@ -16,11 +16,11 @@ log_file=/var/log/nagios3/nagios.log
 <%- unless remove_base_configs -%>
 # Commands definitions
 cfg_file=/etc/nagios3/commands.cfg
+<%- end -%>
 
 # Debian also defaults to using the check commands defined by the debian
 # nagios-plugins package
 cfg_dir=/etc/nagios-plugins/config
-<%- end -%>
 
 # Debian uses by default a configuration directory where nagios3-common,
 # other packages and the local admin can dump or link configuration
